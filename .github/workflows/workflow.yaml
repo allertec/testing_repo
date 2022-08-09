@@ -45,7 +45,7 @@ jobs:
       # Setup partiuclar version of the Python
       - uses: actions/setup-python@v4
         with:
-        python-version: '3.6'
+          python-version: '3.6'
       
       # Prepare Docker envinronment
       - name: Set up Docker Buildx
