@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  ENVIRONMENT_NAME: develop
+  STACK_NAME: myStack
+
 jobs:
   firstJob:
     runs-on: ubuntu
@@ -34,4 +38,4 @@ jobs:
       - name: Run script
         shell: bash
         run: |
-          repo_name/scripts/create_new_hotfix.sh
+          repo_name/scripts/create_new_hotfix.sh ${{ env.STACK_NAME }} ${{ env.ENVIRONMENT_NAME }}
