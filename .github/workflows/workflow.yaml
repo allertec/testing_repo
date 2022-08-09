@@ -1,0 +1,35 @@
+name: This is my test workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  firstJob:
+    runs-on: ubuntu
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Checkout Custom repo
+        uses: actions/checkout@v3
+        with:
+          repository: <github_repo>/<repo_name>
+          path: repo_name
+          ref: main
+          token: ${{ secrets.PAT_GITHUB_TOKEN }}
+
+      - name: Hadolint Action
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: Dockerfile
+          recursive: true
+          ignore: DL3013,SC2016
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Run script
+        shell: bash
+        run: |
+          repo_name/scripts/create_new_hotfix.sh
