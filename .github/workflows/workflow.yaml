@@ -17,8 +17,9 @@ jobs:
           repository: <github_repo>/<repo_name>
           path: repo_name
           ref: main
-          token: ${{ secrets.PAT_GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_GITHUB_TOKEN }} # Generate Personal Access Token
 
+      # Check Dockerfile for best practices
       - name: Hadolint Action
         uses: hadolint/hadolint-action@v2.0.0
         with:
@@ -26,6 +27,7 @@ jobs:
           recursive: true
           ignore: DL3013,SC2016
       
+      # Prepare Docker envinronment
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       
