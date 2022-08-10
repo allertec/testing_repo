@@ -58,6 +58,11 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.2
+      
       - name: Run script
         shell: bash
         env:
