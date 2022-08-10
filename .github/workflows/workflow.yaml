@@ -60,6 +60,8 @@ jobs:
       
       - name: Run script
         shell: bash
+        env:
+          KUBECONFIG: /home/runner/.kube/config
         run: |
           repo_name/scripts/create_new_hotfix.sh ${{ env.STACK_NAME }} ${{ env.ENVIRONMENT_NAME }}
       
