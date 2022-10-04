@@ -1,88 +1,47 @@
-name: This is my test workflow
+name: Some random name
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      account:
+        type: choice
+        description: 'AWS Account'
+        required: true
+        default: 'qsa-project-name'
+        options:
+          - accountA
+          - accountB
+          - accountC
 
 env:
-  ENVIRONMENT_NAME: develop
-  STACK_NAME: myStack
+  AWS_ACCOUNT: ${{ github.event.inputs.account }}
 
 jobs:
-  firstJob:
-    runs-on: ubuntu
+  createBuckets:
+    runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: <AWS::Region>
-
       - uses: actions/checkout@v3
 
-      - name: Setup Chmod
-        run: |
-          chmod +x directory/scripts/script.sh
-
-      - name: Checkout Custom repo
-        uses: actions/checkout@v3
-        with:
-          repository: <github_repo>/<repo_name>
-          path: repo_name
-          ref: main
-          token: ${{ secrets.PAT_GITHUB_TOKEN }} # Generate Personal Access Token
-
-      # Check Dockerfile for best practices
-      - name: Hadolint Action
-        uses: hadolint/hadolint-action@v2.0.0
-        with:
-          dockerfile: Dockerfile
-          recursive: true
-          ignore: DL3013,SC2016
-      
-      # Setup partiuclar version of the Python
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.6'
-      
-      # Prepare Docker envinronment
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      
-      - name: Login to ECR
-        uses: docker/login-action@v2
-        with:
-          registry: <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com
-          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.8.2
-      
-      - name: Run script
+      - name: Setup some variables
         shell: bash
-        env:
-          KUBECONFIG: /home/runner/.kube/config
+        run: ./scripts/variables.sh ${{ env.AWS_ACCOUNT }}
+      
+#       - name: Setup additional vars
+#         shell: bash
+#         run: |
+#           if [[ ${{ env.AWS_ACCOUNT }} == 'accountA' ]]; then
+#             echo REGION='eu-west-1' >> $GITHUB_ENV
+#           elif [[ ${{ env.AWS_ACCOUNT }} == 'accountB' ]]; then
+#             echo REGION='us-west-2' >> $GITHUB_ENV
+#           elif [[ ${{ env.AWS_ACCOUNT }} == 'accountC' ]]; then
+#             echo REGION='us-east-1' >> $GITHUB_ENV
+#           else
+#             echo "You have provided incorrect AWS Account"
+#             exit 1
+#           fi
+      
+      - name: Test our choice
+        shell: bash
         run: |
-          repo_name/scripts/create_new_hotfix.sh ${{ env.STACK_NAME }} ${{ env.ENVIRONMENT_NAME }}
-      
-      - name: Build Docker Image
-        uses: docker/build-push-action@v2
-        with:
-          #context: ${{ github.workspace }}
-          push: true
-          tags: |
-            <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com/testing_repo/my-image:latest
-            <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com/testing_repo/my-image:MY_VERSION
-      
-      - name: Release Docker Image to ECR
-        uses: docker/build-push-action@v2
-        with:
-          #context: ${{ github.workspace }}
-          push: true
-          tags: |
-            <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com/testing_repo/my-image:MY_VERSION
+          echo "This is my region: ${{ env.REGION }}"
+          echo "And this is my region too: ${REGION}"
